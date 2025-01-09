@@ -45,7 +45,7 @@
                 // Muestra los mensajes en la página
                 const chatDiv = document.getElementById("chat");
                 const messageElement = document.createElement("div");
-                messageElement.textContent = `${username}: ${chatMessage}`;
+                messageElement.textContent = `<b>${username}</b>: ${chatMessage}`;
                 chatDiv.appendChild(messageElement);
             }
         };

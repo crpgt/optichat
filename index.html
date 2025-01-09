@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitch Chat Viewer</title>
+</head>
+<body>
+    <h1>olivetti</h1>
+    <div id="chat"></div>
+
+    <script>
+        const streamerName = "optijuegos"; // Cambia esto por el nombre del streamer
+
+        // Configuración del servidor IRC de Twitch
+        const socket = new WebSocket("wss://irc-ws.chat.twitch.tv:443");
+
+        // Función para enviar mensajes al servidor IRC
+        function sendMessage(message) {
+            if (socket.readyState === WebSocket.OPEN) {
+                socket.send(message);
+            } else {
+                console.error("WebSocket no está listo.");
+            }
+        }
+
+        // Conexión inicial
+        socket.onopen = () => {
+            console.log("Conectado al chat de Twitch");
+            sendMessage("PASS oauth:tu_oauth_token"); // Sustituye esto con un token válido
+            sendMessage("NICK justinfan12345"); // Usuario genérico (anonimizado)
+            sendMessage(`JOIN #${streamerName}`);
+        };
+
+        // Manejo de mensajes entrantes
+        socket.onmessage = (event) => {
+            const message = event.data;
+
+            // Filtra solo los mensajes de chat
+            if (message.includes("PRIVMSG")) {
+                const username = message.match(/:(\w+)!/)[1];
+                const chatMessage = message.split("PRIVMSG")[1].split(":")[1];
+
+                // Muestra los mensajes en la página
+                const chatDiv = document.getElementById("chat");
+                const messageElement = document.createElement("div");
+                messageElement.textContent = `${username}: ${chatMessage}`;
+                chatDiv.appendChild(messageElement);
+            }
+        };
+
+        socket.onerror = (error) => {
+            console.error("Error en el WebSocket:", error);
+        };
+
+        socket.onclose = () => {
+            console.log("Conexión cerrada.");
+        };
+    </script>
+</body>
+</html>
